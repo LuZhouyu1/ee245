@@ -53,9 +53,6 @@ class Design_trajectory:
         N_sample_2 = int((self.total_time/self.duration)/2)
         N_sample_3 = int((self.total_time/self.duration)/8)
         N_sample = N_sample_1+N_sample_2+N_sample_3
-        print N_sample_1
-        print N_sample_2
-        print N_sample_3
         theta_1 = np.linspace(-math.pi,math.pi*1/2,N_sample_1)
         theta_2 = np.linspace(-math.pi*1/2,math.pi*3/2,N_sample_2)
         theta_2 = theta_2[::-1]
