@@ -6,11 +6,10 @@ from crazyflieParser import CrazyflieParser
 
 # class of designed trajectory
 class Design_trajectory:
-    def __init__(self, shape, total_time, parameter, cf, initialPosition, targetHeight): # parameter means the size of the square
+    def __init__(self, shape, total_time, parameter, initialPosition, targetHeight): # parameter means the size of the square
         self.yaw=0
         self.total_time=total_time
         self.parameter=parameter
-        self.cf=cf
 	self.initialPosition=np.array([initialPosition[0],initialPosition[1],initialPosition[2]+targetHeight])
         if shape == "square":
             self.trajectory_square_wp()
@@ -33,25 +32,25 @@ class Design_trajectory:
         self.duration=0.1
         ini_Pos = self.initialPosition
         R = self.parameter
-        center = np.array([ini_Pos.x+R,ini_Pos.y,ini_Pos.z])
+        center = np.array([ini_Pos[0]+R,ini_Pos[1],ini_Pos[2]])
         N_sample = int(self.total_time/self.duration)
         theta = np.linspace(-math.pi,math.pi,N_sample)
         self.waypoints=np.zeros((N_sample,3))
         for i in range (1,N_sample):
             self.waypoints[i-1,0] = center[0]+R*math.cos(theta[i])
             self.waypoints[i-1,1] = center[1]+R*math.sin(theta[i])
-            self.waypoints[i-1,2] = ini_Pos.z
-        self.waypoints[N_sample - 1, 0] = ini_Pos.x
-        self.waypoints[N_sample - 1, 1] = ini_Pos.y
-        self.waypoints[N_sample - 1, 2] = ini_Pos.z
+            self.waypoints[i-1,2] = ini_Pos[2]
+        self.waypoints[N_sample - 1, 0] = ini_Pos[0]
+        self.waypoints[N_sample - 1, 1] = ini_Pos[1]
+        self.waypoints[N_sample - 1, 2] = ini_Pos[2]
 
     def trajectory_eight_wp(self):
         # record waypoints
         self.duration=0.1
         ini_Pos = self.initialPosition
         R = self.parameter
-        center_1 = np.array([ini_Pos.x+R,ini_Pos.y,ini_Pos.z])
-        center_2 = np.array([ini_Pos.x+R,ini_Pos.y+2*R,ini_Pos.z])
+        center_1 = np.array([ini_Pos[0]+R,ini_Pos[1],ini_Pos[2]])
+        center_2 = np.array([ini_Pos[0]+R,ini_Pos[1]+2*R,ini_Pos[2]])
         N_sample_1 = int((self.total_time/self.duration*3)/8)
         N_sample_2 = int((self.total_time/self.duration)/2)
         N_sample_3 = int((self.total_time/self.duration)/8)
@@ -64,18 +63,18 @@ class Design_trajectory:
         for i in range (1,N_sample_1):
             self.waypoints[i-1,0] = center_1[0]+R*math.cos(theta_1[i])
             self.waypoints[i-1,1] = center_1[1]+R*math.sin(theta_1[i])
-            self.waypoints[i-1,2] = ini_Pos.z
+            self.waypoints[i-1,2] = ini_Pos[2]
         for i in range (1,N_sample_2):
             self.waypoints[i+N_sample_1-2,0] = center_2[0]+R*math.cos(theta_2[i])
             self.waypoints[i+N_sample_1-2,1] = center_2[1]+R*math.sin(theta_2[i])
-            self.waypoints[i+N_sample_1-2,2] = ini_Pos.z
+            self.waypoints[i+N_sample_1-2,2] = ini_Pos[2]
         for i in range (1,N_sample_3):
             self.waypoints[i+N_sample_1+N_sample_2-3,0] = center_1[0]+R*math.cos(theta_3[i])
             self.waypoints[i+N_sample_1+N_sample_2-3,1] = center_1[1]+R*math.sin(theta_3[i])
-            self.waypoints[i+N_sample_1+N_sample_2-3,2] = ini_Pos.z
-        self.waypoints[N_sample - 3, 0] = ini_Pos.x
-        self.waypoints[N_sample - 3, 1] = ini_Pos.y
-        self.waypoints[N_sample - 3, 2] = ini_Pos.z
+            self.waypoints[i+N_sample_1+N_sample_2-3,2] = ini_Pos[2]
+        self.waypoints[N_sample - 3, 0] = ini_Pos[0]
+        self.waypoints[N_sample - 3, 1] = ini_Pos[1]
+        self.waypoints[N_sample - 3, 2] = ini_Pos[2]
 
 if __name__ == '__main__':
 
@@ -97,23 +96,23 @@ if __name__ == '__main__':
     # Please try both goTo and cmdPosition
 
     # initialization
-    cf_dtraj=Design_trajectory("square",10.0,0.5,cf,initialPosition,0.5)
+    cf_dtraj=Design_trajectory("square",10.0,0.5,initialPosition,0.5)
     n_wp=len(cf_dtraj.waypoints)
     for i in range(0,n_wp):
         cf.goTo(goal=cf_dtraj.waypoints[i],yaw=cf_dtraj.yaw,duration=cf_dtraj.duration)
         time.sleep(cf_dtraj.duration)
 
-    #cf_dtraj=Design_trajectory("circle",10.0,0.5,cf,initialPosition,0.5)
-    #n_wp=len(cf_dtraj.waypoints)
-    #for i in range(0,n_wp):
-        #cf.cmdPosition(pos=cf_dtraj.waypoints[i],yaw=cf_dtraj.yaw)
-        #time.sleep(cf_dtraj.duration)
+    cf_dtraj=Design_trajectory("circle",10.0,0.5,initialPosition,0.5)
+    n_wp=len(cf_dtraj.waypoints)
+    for i in range(0,n_wp):
+        cf.cmdPosition(pos=cf_dtraj.waypoints[i],yaw=cf_dtraj.yaw)
+        time.sleep(cf_dtraj.duration)
 
-    #cf_dtraj=Design_trajectory("eight",20.0,0.25,cf,initialPosition,0.5)
-    #n_wp=len(cf_dtraj.waypoints)
-    #for i in range(0,n_wp):
-       #cf.cmdPosition(pos=cf_dtraj.waypoints[i],yaw=cf_dtraj.yaw)
-       #time.sleep(cf_dtraj.duration)
+    cf_dtraj=Design_trajectory("eight",20.0,0.25,initialPosition,0.5)
+    n_wp=len(cf_dtraj.waypoints)
+    for i in range(0,n_wp):
+       cf.cmdPosition(pos=cf_dtraj.waypoints[i],yaw=cf_dtraj.yaw)
+       time.sleep(cf_dtraj.duration)
 
     cf.land(targetHeight = 0.0, duration = 5.0)
     time.sleep(5.0)
